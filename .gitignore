@@ -1,0 +1,30 @@
+# Docs privados
+Documento-tecnico.md
+Spotify-Desarrollo.md
+SpotifyYoutube.md
+
+# Secretos
+Backend/.env
+Backend/.cache
+Backend/.cache-*
+
+# Python
+Backend/venv/
+Backend/__pycache__/
+Backend/app/**/__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+
+# Base de datos
+Backend/*.db
+Backend/*.sqlite
+
+# Node
+Frontend/node_modules/
+Frontend/dist/
+Frontend/.vite/
+
+# Misc
+.DS_Store
+*.log
