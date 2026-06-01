@@ -14,4 +14,5 @@ def list_songs(playlist_id: str, access_token: str):
         return get_playlist_tracks(sp, playlist_id)
     except Exception as e:
         logger.error("Songs error: %s", e)
-        raise HTTPException(status_code=500, detail=str(e))
+        status = 401 if "401" in str(e) else 500
+        raise HTTPException(status_code=status, detail=str(e))

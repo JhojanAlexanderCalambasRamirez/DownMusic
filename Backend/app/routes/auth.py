@@ -8,8 +8,7 @@ router = APIRouter()
 @router.get("/login")
 def login():
     oauth = get_spotify_oauth()
-    auth_url = oauth.get_authorize_url()
-    return RedirectResponse(auth_url)
+    return RedirectResponse(oauth.get_authorize_url())
 
 
 @router.get("/callback")
@@ -19,17 +18,22 @@ def callback(code: str):
         token_info = oauth.get_access_token(code)
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid authorization code")
-    # Redirect frontend with token in query param (swap for httpOnly cookie in prod)
-    frontend_url = f"http://localhost:5173/callback?access_token={token_info['access_token']}"
+
+    access_token = token_info["access_token"]
+    refresh_token = token_info.get("refresh_token", "")
+    frontend_url = (
+        f"http://localhost:5173/callback"
+        f"?access_token={access_token}"
+        f"&refresh_token={refresh_token}"
+    )
     return RedirectResponse(frontend_url)
 
 
-@router.get("/me")
-def me(access_token: str):
-    from app.auth.oauth import get_spotify_client
-    sp = get_spotify_client(access_token)
+@router.get("/refresh")
+def refresh(refresh_token: str):
+    oauth = get_spotify_oauth()
     try:
-        user = sp.current_user()
+        token_info = oauth.refresh_access_token(refresh_token)
     except Exception:
-        raise HTTPException(status_code=401, detail="Invalid or expired token")
-    return {"spotify_id": user["id"], "display_name": user.get("display_name")}
+        raise HTTPException(status_code=401, detail="Refresh token invalid or expired")
+    return {"access_token": token_info["access_token"]}

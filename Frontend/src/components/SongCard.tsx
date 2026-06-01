@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import type { Track } from '../types'
+import DownloadMenu from './DownloadMenu'
 
 interface Props {
   track: Track
@@ -51,6 +52,7 @@ export default function SongCard({ track }: Props) {
         >
           YT
         </a>
+        <DownloadMenu query={fullLabel} />
         {track.spotify_url && (
           <div className="relative" ref={menuRef}>
             <button
@@ -69,7 +71,7 @@ export default function SongCard({ track }: Props) {
                   onClick={() => setShowSpotifyMenu(false)}
                   className="flex items-center gap-2 px-3 py-2 text-sm text-white hover:bg-gray-700"
                 >
-                  <span>🎵</span> App Spotify
+                  <span></span> App Spotify
                 </a>
                 <a
                   href={track.spotify_url}
@@ -78,7 +80,7 @@ export default function SongCard({ track }: Props) {
                   onClick={() => setShowSpotifyMenu(false)}
                   className="flex items-center gap-2 px-3 py-2 text-sm text-white hover:bg-gray-700"
                 >
-                  <span>🌐</span> Web Spotify
+                  <span></span> Web Spotify
                 </a>
               </div>
             )}

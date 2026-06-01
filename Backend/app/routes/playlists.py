@@ -14,4 +14,5 @@ def list_playlists(access_token: str):
         return get_user_playlists(sp)
     except Exception as e:
         logger.error("Spotify playlists error: %s", e)
-        raise HTTPException(status_code=500, detail=str(e))
+        status = 401 if "401" in str(e) else 500
+        raise HTTPException(status_code=status, detail=str(e))
