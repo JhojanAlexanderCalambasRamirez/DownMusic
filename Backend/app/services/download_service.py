@@ -1,11 +1,14 @@
 import os
 import tempfile
+import zipfile
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Literal
 
 import yt_dlp
 
 AudioFormat = Literal["mp3", "mp4"]
+MAX_PARALLEL = 4
 
 
 def download_track(query: str, fmt: AudioFormat) -> tuple[str, str]:
@@ -47,5 +50,39 @@ def download_track(query: str, fmt: AudioFormat) -> tuple[str, str]:
     if not files:
         raise FileNotFoundError("yt-dlp did not produce a file")
 
-    path = str(files[0])
-    return path, files[0].name
+    return str(files[0]), files[0].name
+
+
+def download_tracks_zip(queries: list[str], fmt: AudioFormat) -> tuple[str, str]:
+    """
+    Downloads multiple tracks in parallel and zips them.
+    Returns (zip_filepath, zip_filename).
+    Caller is responsible for deleting the file.
+    """
+    zip_tmpdir = tempfile.mkdtemp()
+    zip_path = os.path.join(zip_tmpdir, "downmusic.zip")
+
+    def _download_one(query: str):
+        try:
+            return download_track(query, fmt)
+        except Exception:
+            return None
+
+    results = []
+    with ThreadPoolExecutor(max_workers=MAX_PARALLEL) as executor:
+        futures = {executor.submit(_download_one, q): q for q in queries}
+        for future in as_completed(futures):
+            result = future.result()
+            if result:
+                results.append(result)
+
+    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
+        for filepath, filename in results:
+            zf.write(filepath, filename)
+            try:
+                os.remove(filepath)
+                os.rmdir(os.path.dirname(filepath))
+            except Exception:
+                pass
+
+    return zip_path, "downmusic.zip"

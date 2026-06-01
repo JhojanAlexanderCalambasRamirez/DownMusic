@@ -29,6 +29,22 @@ def callback(code: str):
     return RedirectResponse(frontend_url)
 
 
+@router.get("/me")
+def me(access_token: str):
+    from app.auth.oauth import get_spotify_client
+    sp = get_spotify_client(access_token)
+    try:
+        user = sp.current_user()
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+    images = user.get("images") or []
+    return {
+        "spotify_id": user["id"],
+        "display_name": user.get("display_name"),
+        "profile_image": images[0]["url"] if images else None,
+    }
+
+
 @router.get("/refresh")
 def refresh(refresh_token: str):
     oauth = get_spotify_oauth()

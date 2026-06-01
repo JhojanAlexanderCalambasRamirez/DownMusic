@@ -52,3 +52,17 @@ export const downloadTrack = (token: string, query: string, format: 'mp3' | 'mp4
     responseType: 'blob',
     timeout: 120000,
   })
+
+export const downloadBatch = (token: string, queries: string[], format: 'mp3' | 'mp4') =>
+  api.post('/download/batch', { queries, format }, {
+    params: { access_token: token },
+    responseType: 'blob',
+    timeout: 600000,
+  })
+
+export const downloadPlaylist = (token: string, playlistId: string, format: 'mp3' | 'mp4') =>
+  api.get(`/download/playlist/${playlistId}`, {
+    params: { access_token: token, format },
+    responseType: 'blob',
+    timeout: 600000,
+  })

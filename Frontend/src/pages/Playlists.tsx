@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getPlaylists } from '../services/api'
 import PlaylistCard from '../components/PlaylistCard'
+import AppHeader from '../components/AppHeader'
+import Footer from '../components/Footer'
+import { useSpotifyUser } from '../hooks/useSpotifyUser'
 import type { Playlist } from '../types'
 
 interface Props {
@@ -12,6 +15,7 @@ interface Props {
 export default function Playlists({ token, onLogout }: Props) {
   const [playlists, setPlaylists] = useState<Playlist[]>([])
   const navigate = useNavigate()
+  const user = useSpotifyUser(token)
 
   useEffect(() => {
     getPlaylists(token).then((res) => setPlaylists(res.data))
@@ -20,12 +24,8 @@ export default function Playlists({ token, onLogout }: Props) {
   return (
     <div className="min-h-screen bg-gray-950 p-6">
       <div className="mx-auto max-w-2xl">
-        <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-white">Mis Playlists</h1>
-          <button onClick={onLogout} className="text-sm text-gray-400 hover:text-white">
-            Cerrar sesión
-          </button>
-        </div>
+        <AppHeader user={user} onLogout={onLogout} />
+        <h2 className="mb-4 text-lg font-semibold text-white">Mis Playlists</h2>
         <div className="space-y-2">
           {playlists.map((p) => (
             <PlaylistCard
@@ -35,6 +35,7 @@ export default function Playlists({ token, onLogout }: Props) {
             />
           ))}
         </div>
+        <Footer />
       </div>
     </div>
   )

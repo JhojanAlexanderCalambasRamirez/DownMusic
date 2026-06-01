@@ -1,6 +1,6 @@
 # DownMusic
 
-DownMusic es una aplicación web de código abierto para explorar tus playlists de Spotify y compartir canciones rápidamente, sin necesidad de navegar manualmente por la app.
+DownMusic es una aplicación web de código abierto para explorar tus playlists de Spotify y gestionar canciones de forma rápida, sin necesidad de navegar manualmente por la app.
 
 Nace de una necesidad simple: en reuniones o eventos, cuando alguien pregunta por una canción y quieres indicarle el nombre al instante para que la busque en YouTube u otra plataforma.
 
@@ -8,33 +8,42 @@ Nace de una necesidad simple: en reuniones o eventos, cuando alguien pregunta po
 
 ## Funcionalidades
 
-- Inicio de sesión con cuenta de Spotify
-- Visualización de todas tus playlists, incluyendo las canciones que te gustan
-- Búsqueda de canciones dentro de cada playlist
-- Copia rápida de Artista - Canción al portapapeles
-- Apertura de canciones en la app de Spotify o en el navegador
-- Búsqueda directa en YouTube con un clic
+- Inicio de sesión con cuenta de Spotify y renovacion automatica del token
+- Visualizacion del perfil del usuario (nombre y foto)
+- Listado de todas las playlists, incluyendo canciones que te gustan
+- Busqueda de canciones dentro de cada playlist por nombre o artista
+- Copia rapida de "Artista - Cancion" al portapapeles
+- Apertura de canciones en la app de Spotify o en el navegador web
+- Busqueda directa en YouTube con un clic
+- Descarga de canciones individuales en MP3 o MP4
+- Seleccion multiple de canciones y descarga en lote como ZIP
+- Descarga de una playlist completa en MP3 o MP4 como ZIP
+- Informacion de la aplicacion accesible desde un modal en la cabecera
 
 ---
 
-## Stack tecnológico
+## Stack tecnologico
 
-| Capa      | Tecnología                                   |
-|-----------|----------------------------------------------|
-| Frontend  | React, TypeScript, Vite, Tailwind CSS        |
-| Backend   | FastAPI, Python                              |
-| Auth      | Spotify OAuth 2.0                            |
-| Base de datos | SQLite (migración a PostgreSQL disponible) |
+| Capa          | Tecnologia                                        |
+|---------------|---------------------------------------------------|
+| Frontend      | React, TypeScript, Vite, Tailwind CSS             |
+| Backend       | FastAPI, Python                                   |
+| Auth          | Spotify OAuth 2.0 con refresh token automatico   |
+| Descarga      | yt-dlp + ffmpeg                                   |
+| Base de datos | SQLite (migracion a PostgreSQL disponible)        |
 
 ---
 
-## Instalación local
-
-### Requisitos previos
+## Requisitos del sistema
 
 - Python 3.11 o superior
 - Node.js 18 o superior
-- Aplicación registrada en [Spotify Developer Dashboard](https://developer.spotify.com) con la siguiente URI de redirección: `http://127.0.0.1:8000/auth/callback`
+- ffmpeg instalado en el sistema (`brew install ffmpeg` en macOS)
+- Aplicacion registrada en [Spotify Developer Dashboard](https://developer.spotify.com) con URI de redireccion: `http://127.0.0.1:8000/auth/callback`
+
+---
+
+## Instalacion local
 
 ### Backend
 
@@ -58,40 +67,53 @@ npm install
 npm run dev
 ```
 
-Abre `http://localhost:5173` en tu navegador e inicia sesión con Spotify.
+Abre `http://localhost:5173` en tu navegador e inicia sesion con Spotify.
 
 ---
 
 ## Roadmap
 
-### v1.0 — MVP (actual)
+### v1.0 — MVP (completado)
 
-- Inicio de sesión con Spotify
-- Listado de playlists y canciones que te gustan
-- Busqueda dentro de cada playlist
-- Copiar Artista - Cancion al portapapeles
-- Abrir cancion en la app de Spotify o en el navegador
-- Busqueda directa en YouTube
+- [x] Inicio de sesion con Spotify
+- [x] Renovacion automatica del token
+- [x] Listado de playlists y canciones que te gustan
+- [x] Busqueda dentro de cada playlist
+- [x] Copiar Artista - Cancion al portapapeles
+- [x] Abrir cancion en la app de Spotify o en el navegador
+- [x] Busqueda directa en YouTube
 
-### v1.1
+### v1.1 — Descargas (completado)
 
-- Buscador global entre todas las playlists
-- Mejoras de rendimiento
+- [x] Descarga individual de canciones en MP3 o MP4
+- [x] Seleccion multiple y descarga en lote como ZIP
+- [x] Descarga de playlist completa como ZIP
+- [x] Perfil del usuario con foto y nombre
+- [x] Modal informativo sobre la aplicacion
+- [x] Footer con informacion de contacto
 
 ### v1.2
 
-- Contador de canciones visible desde la lista de playlists
+- [ ] Buscador global entre todas las playlists
+- [ ] Contador de canciones visible desde la lista de playlists
+- [ ] Mejoras de rendimiento en descargas
 
 ### v2.0
 
-- Historial de canciones copiadas
-- Favoritos
-- Compartir playlists
-- Exportación de listas
-- Soporte para Apple Music, YouTube Music y Deezer
-- Instalación como PWA
-- Caché offline
-- Modo claro / oscuro
+- [ ] Historial de canciones copiadas
+- [ ] Favoritos
+- [ ] Compartir playlists
+- [ ] Exportacion de listas
+- [ ] Soporte para Apple Music, YouTube Music y Deezer
+- [ ] Instalacion como PWA
+- [ ] Cache offline
+- [ ] Modo claro / oscuro
+
+---
+
+## Autor
+
+Desarrollado por J4CR — [LinkedIn](https://www.linkedin.com/in/j4cr/) — [GitHub](https://github.com/JhojanAlexanderCalambasRamirez)
 
 ---
 

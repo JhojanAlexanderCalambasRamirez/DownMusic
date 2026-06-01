@@ -4,6 +4,8 @@ import DownloadMenu from './DownloadMenu'
 
 interface Props {
   track: Track
+  selected?: boolean
+  onToggle?: () => void
 }
 
 function buildYouTubeUrl(track: Track) {
@@ -11,7 +13,7 @@ function buildYouTubeUrl(track: Track) {
   return `https://www.youtube.com/results?search_query=${q}`
 }
 
-export default function SongCard({ track }: Props) {
+export default function SongCard({ track, selected = false, onToggle }: Props) {
   const artistLine = track.artists.join(', ')
   const fullLabel = `${artistLine} - ${track.name}`
   const [showSpotifyMenu, setShowSpotifyMenu] = useState(false)
@@ -31,8 +33,20 @@ export default function SongCard({ track }: Props) {
   }, [showSpotifyMenu])
 
   return (
-    <div className="flex items-center justify-between rounded-lg bg-gray-900 px-4 py-3">
-      <div className="min-w-0 flex-1 pr-4">
+    <div
+      className={`flex items-center gap-3 rounded-lg px-4 py-3 ${
+        selected ? 'bg-gray-700' : 'bg-gray-900'
+      }`}
+    >
+      {onToggle && (
+        <input
+          type="checkbox"
+          checked={selected}
+          onChange={onToggle}
+          className="h-4 w-4 shrink-0 accent-blue-500"
+        />
+      )}
+      <div className="min-w-0 flex-1 pr-2">
         <p className="truncate font-medium text-white">{track.name}</p>
         <p className="truncate text-sm text-gray-400">{artistLine}</p>
       </div>
