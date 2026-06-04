@@ -11,7 +11,14 @@ export default function PlaylistCard({ playlist, onClick }: Props) {
     <div className="flex w-full items-center gap-4 rounded-lg bg-gray-900 p-4 hover:bg-gray-800">
       <button onClick={onClick} className="flex flex-1 items-center gap-4 text-left">
         {playlist.image_url ? (
-          <img src={playlist.image_url} alt="" className="h-12 w-12 rounded object-cover" />
+          <img
+            src={playlist.image_url}
+            alt=""
+            width={48}
+            height={48}
+            loading="lazy"
+            className="h-12 w-12 rounded object-cover"
+          />
         ) : (
           <div className="flex h-12 w-12 items-center justify-center rounded bg-gray-700 text-xl">
             🎵

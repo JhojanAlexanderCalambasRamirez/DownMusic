@@ -64,7 +64,7 @@ export default function DownloadMenu({ query }: Props) {
         )}
       </div>
 
-      {loading && <DownloadOverlay message={`Descargando "${query}"...`} />}
+      {loading && <DownloadOverlay completed={0} total={0} message={`Descargando "${query}"...`} />}
       {result && result.failed.length > 0 && (
         <DownloadResultModal result={result} onClose={clear} />
       )}

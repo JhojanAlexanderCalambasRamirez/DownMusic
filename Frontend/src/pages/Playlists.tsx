@@ -25,16 +25,18 @@ export default function Playlists({ token, onLogout }: Props) {
     <div className="min-h-screen bg-gray-950 p-6">
       <div className="mx-auto max-w-2xl">
         <AppHeader user={user} onLogout={onLogout} />
-        <h2 className="mb-4 text-lg font-semibold text-white">Mis Playlists</h2>
-        <div className="space-y-2">
-          {playlists.map((p) => (
-            <PlaylistCard
-              key={p.id}
-              playlist={p}
-              onClick={() => navigate(`/playlist/${p.id}`)}
-            />
-          ))}
-        </div>
+        <main>
+          <h2 className="mb-4 text-lg font-semibold text-white">Mis Playlists</h2>
+          <div className="space-y-2">
+            {playlists.map((p) => (
+              <PlaylistCard
+                key={p.id}
+                playlist={p}
+                onClick={() => navigate(`/playlist/${p.id}`)}
+              />
+            ))}
+          </div>
+        </main>
         <Footer />
       </div>
     </div>

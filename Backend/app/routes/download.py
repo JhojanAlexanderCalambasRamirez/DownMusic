@@ -8,7 +8,7 @@ from starlette.background import BackgroundTask
 
 from app.auth.oauth import get_spotify_client
 from app.services.download_service import download_track, download_tracks_zip, AudioFormat
-from app.services.spotify_service import get_playlist_tracks
+from app.services.spotify_service import get_all_playlist_tracks
 from app.services.job_service import create_job, get_job, remove_job
 
 logger = logging.getLogger(__name__)
@@ -97,7 +97,7 @@ def start_playlist_job(
 ):
     sp = get_spotify_client(access_token)
     try:
-        data = get_playlist_tracks(sp, playlist_id)
+        data = get_all_playlist_tracks(sp, playlist_id)
     except Exception as e:
         status = 401 if "401" in str(e) else 500
         raise HTTPException(status_code=status, detail=str(e))

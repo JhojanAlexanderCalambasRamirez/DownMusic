@@ -43,6 +43,7 @@ export default function SongCard({ track, selected = false, onToggle }: Props) {
           type="checkbox"
           checked={selected}
           onChange={onToggle}
+          aria-label={`Seleccionar ${track.name}`}
           className="h-4 w-4 shrink-0 accent-blue-500"
         />
       )}

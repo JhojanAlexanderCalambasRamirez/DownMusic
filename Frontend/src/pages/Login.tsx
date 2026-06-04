@@ -3,7 +3,7 @@ import Footer from '../components/Footer'
 export default function Login() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gray-950 p-6">
-      <div className="w-full max-w-sm text-center">
+      <main className="w-full max-w-sm text-center">
         <h1 className="mb-2 text-4xl font-bold text-white">DownMusic</h1>
         <p className="mb-8 text-gray-400">Explora tus playlists de Spotify y gestiona canciones al instante</p>
         <a
@@ -12,7 +12,7 @@ export default function Login() {
         >
           Iniciar sesion con Spotify
         </a>
-      </div>
+      </main>
       <div className="absolute bottom-0 w-full">
         <Footer />
       </div>

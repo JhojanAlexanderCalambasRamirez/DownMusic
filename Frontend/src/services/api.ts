@@ -41,8 +41,10 @@ api.interceptors.response.use(
 export const getPlaylists = (token: string) =>
   api.get('/playlists/', withToken(token))
 
-export const getTracks = (token: string, playlistId: string) =>
-  api.get(`/songs/${playlistId}`, withToken(token))
+export const getTracks = (token: string, playlistId: string, offset = 0, limit = 50) =>
+  api.get(`/songs/${playlistId}`, {
+    params: { access_token: token, offset, limit },
+  })
 
 export const getMe = (token: string) =>
   api.get('/auth/me', withToken(token))
