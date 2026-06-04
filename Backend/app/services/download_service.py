@@ -1,6 +1,7 @@
 import os
 import tempfile
 import zipfile
+from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Literal
@@ -13,7 +14,7 @@ MAX_PARALLEL = 4
 
 def download_track(query: str, fmt: AudioFormat) -> tuple[str, str]:
     """
-    Downloads the top YouTube result for `query`.
+    Downloads top YouTube result for `query`.
     Returns (absolute_filepath, filename).
     Caller is responsible for deleting the file.
     """
@@ -53,31 +54,52 @@ def download_track(query: str, fmt: AudioFormat) -> tuple[str, str]:
     return str(files[0]), files[0].name
 
 
-def download_tracks_zip(queries: list[str], fmt: AudioFormat) -> tuple[str, str]:
+def download_tracks_zip(
+    queries: list[str],
+    fmt: AudioFormat,
+    on_progress: Callable[[int, list[str]], None] | None = None,
+) -> tuple[str, str, list[str]]:
     """
     Downloads multiple tracks in parallel and zips them.
-    Returns (zip_filepath, zip_filename).
-    Caller is responsible for deleting the file.
+    Calls on_progress(completed_count, failed_list) after each track.
+    Returns (zip_filepath, zip_filename, failed_queries).
     """
     zip_tmpdir = tempfile.mkdtemp()
     zip_path = os.path.join(zip_tmpdir, "downmusic.zip")
 
-    def _download_one(query: str):
+    results: list[tuple[str, str]] = []
+    failed: list[str] = []
+    completed = 0
+
+    def _download_one(query: str) -> tuple[str, str] | None:
         try:
             return download_track(query, fmt)
         except Exception:
             return None
 
-    results = []
     with ThreadPoolExecutor(max_workers=MAX_PARALLEL) as executor:
-        futures = {executor.submit(_download_one, q): q for q in queries}
-        for future in as_completed(futures):
+        future_to_query = {executor.submit(_download_one, q): q for q in queries}
+        for future in as_completed(future_to_query):
+            query = future_to_query[future]
             result = future.result()
+            completed += 1
             if result:
                 results.append(result)
+            else:
+                failed.append(query)
+            if on_progress:
+                on_progress(completed, failed[:])
 
+    seen: dict[str, int] = {}
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
         for filepath, filename in results:
+            name, ext = os.path.splitext(filename)
+            if filename in seen:
+                seen[filename] += 1
+                filename = f"{name} ({seen[filename]}){ext}"
+            else:
+                seen[filename] = 0
+
             zf.write(filepath, filename)
             try:
                 os.remove(filepath)
@@ -85,4 +107,7 @@ def download_tracks_zip(queries: list[str], fmt: AudioFormat) -> tuple[str, str]
             except Exception:
                 pass
 
-    return zip_path, "downmusic.zip"
+        if failed:
+            zf.writestr("_canciones_fallidas.txt", "\n".join(failed))
+
+    return zip_path, "downmusic.zip", failed

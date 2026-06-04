@@ -24,7 +24,11 @@ export default function PlaylistCard({ playlist, onClick }: Props) {
           </p>
         </div>
       </button>
-      <PlaylistDownloadMenu playlistId={playlist.id} playlistName={playlist.name} />
+      <PlaylistDownloadMenu
+        playlistId={playlist.id}
+        playlistName={playlist.name}
+        totalTracks={playlist.total_tracks}
+      />
     </div>
   )
 }

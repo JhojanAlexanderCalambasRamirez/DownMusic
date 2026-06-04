@@ -19,14 +19,13 @@ def callback(code: str):
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid authorization code")
 
+    import os
     access_token = token_info["access_token"]
     refresh_token = token_info.get("refresh_token", "")
-    frontend_url = (
-        f"http://localhost:5173/callback"
-        f"?access_token={access_token}"
-        f"&refresh_token={refresh_token}"
+    base = os.getenv("FRONTEND_URL", "http://localhost:5173")
+    return RedirectResponse(
+        f"{base}/callback?access_token={access_token}&refresh_token={refresh_token}"
     )
-    return RedirectResponse(frontend_url)
 
 
 @router.get("/me")

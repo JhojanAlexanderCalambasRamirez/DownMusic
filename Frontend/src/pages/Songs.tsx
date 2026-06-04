@@ -47,9 +47,9 @@ export default function Songs({ token }: Props) {
         </div>
         <SearchBar value={query} onChange={setQuery} />
         <div className="mt-4 space-y-2">
-          {filtered.map((t) => (
+          {filtered.map((t, i) => (
             <SongCard
-              key={t.id}
+              key={`${t.id}_${i}`}
               track={t}
               selected={selected.has(t.id)}
               onToggle={() => toggle(t.id)}

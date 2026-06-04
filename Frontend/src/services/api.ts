@@ -1,6 +1,7 @@
 import axios from 'axios'
 
-const api = axios.create({ baseURL: '/api' })
+const BASE = import.meta.env.VITE_API_URL ?? '/api'
+const api = axios.create({ baseURL: BASE })
 
 const withToken = (token: string) => ({ params: { access_token: token } })
 
@@ -53,16 +54,24 @@ export const downloadTrack = (token: string, query: string, format: 'mp3' | 'mp4
     timeout: 120000,
   })
 
-export const downloadBatch = (token: string, queries: string[], format: 'mp3' | 'mp4') =>
-  api.post('/download/batch', { queries, format }, {
-    params: { access_token: token },
+export const downloadTrackSingle = (token: string, query: string, format: 'mp3' | 'mp4') =>
+  api.get('/download/', {
+    params: { access_token: token, query, format },
     responseType: 'blob',
-    timeout: 600000,
+    timeout: 120000,
   })
 
-export const downloadPlaylist = (token: string, playlistId: string, format: 'mp3' | 'mp4') =>
-  api.get(`/download/playlist/${playlistId}`, {
+// Job-based async downloads
+export const startBatchJob = (token: string, queries: string[], format: 'mp3' | 'mp4') =>
+  api.post('/download/jobs', { queries, format }, { params: { access_token: token } })
+
+export const startPlaylistJob = (token: string, playlistId: string, format: 'mp3' | 'mp4') =>
+  api.post(`/download/jobs/playlist/${playlistId}`, null, {
     params: { access_token: token, format },
-    responseType: 'blob',
-    timeout: 600000,
   })
+
+export const pollJobStatus = (jobId: string) =>
+  api.get(`/download/jobs/${jobId}/status`)
+
+export const downloadJobFile = (jobId: string) =>
+  api.get(`/download/jobs/${jobId}/file`, { responseType: 'blob', timeout: 120000 })

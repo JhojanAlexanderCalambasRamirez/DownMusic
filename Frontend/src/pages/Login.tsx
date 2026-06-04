@@ -7,7 +7,7 @@ export default function Login() {
         <h1 className="mb-2 text-4xl font-bold text-white">DownMusic</h1>
         <p className="mb-8 text-gray-400">Explora tus playlists de Spotify y gestiona canciones al instante</p>
         <a
-          href="/api/auth/login"
+          href={`${import.meta.env.VITE_API_URL ?? '/api'}/auth/login`}
           className="inline-block rounded-full bg-green-500 px-8 py-3 font-semibold text-black hover:bg-green-400"
         >
           Iniciar sesion con Spotify
