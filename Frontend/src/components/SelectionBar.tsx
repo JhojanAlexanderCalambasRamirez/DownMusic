@@ -1,5 +1,7 @@
+import { useRef } from 'react'
 import { useTokenContext } from '../context/TokenContext'
 import { useDownloadJob } from '../hooks/useDownloadJob'
+import { buildSearchQuery } from '../utils/search'
 import DownloadOverlay from './DownloadOverlay'
 import DownloadResultModal from './DownloadResultModal'
 import type { Track } from '../types'
@@ -28,16 +30,23 @@ export default function SelectionBar({
   const token = useTokenContext()
   const { progress, runBatch, runPlaylist, reset } = useDownloadJob()
   const isActive = progress.status === 'processing'
+  const lastFormat = useRef<'mp3' | 'mp4'>('mp3')
 
   const selectedTracks = tracks.filter((t) => selectedIds.has(t.id))
-  const queries = selectedTracks.map((t) => `${t.artists[0]} ${t.name}`)
+  const queries = selectedTracks.map(buildSearchQuery)
 
   const handleDownload = (format: 'mp3' | 'mp4') => {
+    lastFormat.current = format
     if (allPlaylistSelected) {
       runPlaylist(token, playlistId, format, 'playlist.zip')
     } else {
       runBatch(token, queries, format, 'seleccion.zip')
     }
+  }
+
+  const handleRetry = () => {
+    if (progress.failed.length === 0) return
+    runBatch(token, progress.failed, lastFormat.current, 'reintento.zip')
   }
 
   const countLabel = allPlaylistSelected
@@ -109,6 +118,7 @@ export default function SelectionBar({
             succeeded: progress.completed,
           }}
           onClose={reset}
+          onRetry={progress.status === 'done' && progress.failed.length > 0 ? handleRetry : undefined}
         />
       )}
     </>

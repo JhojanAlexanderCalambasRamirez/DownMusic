@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import type { Track } from '../types'
+import { buildSearchQuery } from '../utils/search'
 import DownloadMenu from './DownloadMenu'
 
 interface Props {
@@ -8,14 +9,14 @@ interface Props {
   onToggle?: () => void
 }
 
-function buildYouTubeUrl(track: Track) {
-  const q = encodeURIComponent(`${track.artists[0]} ${track.name}`)
-  return `https://www.youtube.com/results?search_query=${q}`
+function buildYouTubeUrl(searchQuery: string) {
+  return `https://www.youtube.com/results?search_query=${encodeURIComponent(searchQuery)}`
 }
 
 export default function SongCard({ track, selected = false, onToggle }: Props) {
   const artistLine = track.artists.join(', ')
   const fullLabel = `${artistLine} - ${track.name}`
+  const searchQuery = buildSearchQuery(track)
   const [showSpotifyMenu, setShowSpotifyMenu] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
@@ -60,14 +61,14 @@ export default function SongCard({ track, selected = false, onToggle }: Props) {
           Copiar
         </button>
         <a
-          href={buildYouTubeUrl(track)}
+          href={buildYouTubeUrl(searchQuery)}
           target="_blank"
           rel="noopener noreferrer"
           className="rounded bg-red-700 px-2 py-1 text-xs text-white hover:bg-red-600"
         >
           YT
         </a>
-        <DownloadMenu query={fullLabel} />
+        <DownloadMenu query={searchQuery} />
         {track.spotify_url && (
           <div className="relative" ref={menuRef}>
             <button

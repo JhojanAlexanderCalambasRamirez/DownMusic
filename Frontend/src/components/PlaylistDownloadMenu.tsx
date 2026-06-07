@@ -13,8 +13,9 @@ interface Props {
 export default function PlaylistDownloadMenu({ playlistId, playlistName, totalTracks = 0 }: Props) {
   const token = useTokenContext()
   const [open, setOpen] = useState(false)
-  const { progress, runPlaylist, reset } = useDownloadJob()
+  const { progress, runBatch, runPlaylist, reset } = useDownloadJob()
   const menuRef = useRef<HTMLDivElement>(null)
+  const lastFormat = useRef<'mp3' | 'mp4'>('mp3')
 
   useEffect(() => {
     if (!open) return
@@ -29,7 +30,13 @@ export default function PlaylistDownloadMenu({ playlistId, playlistName, totalTr
 
   const handleDownload = (format: 'mp3' | 'mp4') => {
     setOpen(false)
+    lastFormat.current = format
     runPlaylist(token, playlistId, format, `${playlistName}.zip`)
+  }
+
+  const handleRetry = () => {
+    if (progress.failed.length === 0) return
+    runBatch(token, progress.failed, lastFormat.current, `${playlistName} (reintento).zip`)
   }
 
   const isActive = progress.status === 'processing'
@@ -86,6 +93,7 @@ export default function PlaylistDownloadMenu({ playlistId, playlistName, totalTr
             succeeded: progress.completed,
           }}
           onClose={reset}
+          onRetry={progress.status === 'done' && progress.failed.length > 0 ? handleRetry : undefined}
         />
       )}
     </>

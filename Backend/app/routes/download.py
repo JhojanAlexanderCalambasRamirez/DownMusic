@@ -103,7 +103,7 @@ def start_playlist_job(
         raise HTTPException(status_code=status, detail=str(e))
 
     queries = [
-        f"{t['artists'][0]} {t['name']}" for t in data["tracks"] if t.get("artists")
+        f"{t['artists'][0]} - {t['name']}" for t in data["tracks"] if t.get("artists")
     ]
     if not queries:
         raise HTTPException(status_code=404, detail="Playlist sin canciones")

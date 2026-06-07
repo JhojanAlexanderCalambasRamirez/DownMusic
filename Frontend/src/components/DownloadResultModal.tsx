@@ -3,9 +3,10 @@ import type { DownloadResult } from '../hooks/useDownload'
 interface Props {
   result: DownloadResult
   onClose: () => void
+  onRetry?: () => void
 }
 
-export default function DownloadResultModal({ result, onClose }: Props) {
+export default function DownloadResultModal({ result, onClose, onRetry }: Props) {
   const allOk = result.failed.length === 0
 
   return (
@@ -49,9 +50,18 @@ export default function DownloadResultModal({ result, onClose }: Props) {
           </div>
         )}
 
+        {onRetry && (
+          <button
+            onClick={onRetry}
+            className="mt-4 w-full rounded-lg bg-blue-700 py-2 text-sm text-white hover:bg-blue-600"
+          >
+            Reintentar fallidas ({result.failed.length})
+          </button>
+        )}
+
         <button
           onClick={onClose}
-          className="mt-4 w-full rounded-lg bg-gray-700 py-2 text-sm text-white hover:bg-gray-600"
+          className="mt-2 w-full rounded-lg bg-gray-700 py-2 text-sm text-white hover:bg-gray-600"
         >
           Cerrar
         </button>

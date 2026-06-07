@@ -1,5 +1,6 @@
 import os
 import tempfile
+import time
 import zipfile
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -10,6 +11,23 @@ import yt_dlp
 
 AudioFormat = Literal["mp3", "mp4"]
 MAX_PARALLEL = 4
+
+# Reconnection handling: yt-dlp's own `retries`/`socket_timeout` absorb short
+# network blips during a download; this outer loop additionally re-runs the
+# whole attempt when the connection drops entirely (e.g. wifi cut), so a track
+# isn't given up on just because the network came back a few seconds later.
+NETWORK_ERROR_HINTS = (
+    "timed out", "timeout", "connection", "network",
+    "temporary failure in name resolution", "name or service not known",
+    "reset by peer", "unreachable", "no route to host", "ssl",
+)
+MAX_NETWORK_RETRIES = 5
+RETRY_BASE_DELAY = 3  # seconds, doubles each attempt (capped)
+
+
+def _is_network_error(exc: Exception) -> bool:
+    msg = str(exc).lower()
+    return any(hint in msg for hint in NETWORK_ERROR_HINTS)
 
 
 def download_track(query: str, fmt: AudioFormat) -> tuple[str, str]:
@@ -25,7 +43,24 @@ def download_track(query: str, fmt: AudioFormat) -> tuple[str, str]:
         "quiet": True,
         "no_warnings": True,
         "default_search": "ytsearch1",
+        # Absorb short network blips mid-download before we even get to the outer retry loop
+        "retries": 10,
+        "fragment_retries": 10,
+        "socket_timeout": 30,
+        # yt-dlp needs a JS runtime to solve YouTube's signature/n challenges,
+        # otherwise only broken/image-only formats are returned (requires yt-dlp-ejs + Node.js >= 20)
+        "js_runtimes": {"node": {}},
     }
+
+    # YouTube's "Sign in to confirm you're not a bot" requires authenticated cookies.
+    # Local dev: reuse cookies from an installed browser (YTDLP_COOKIES_FROM_BROWSER=chrome).
+    # Production: ship a cookies.txt file and point YTDLP_COOKIES_FILE at it.
+    cookies_browser = os.environ.get("YTDLP_COOKIES_FROM_BROWSER")
+    cookies_file = os.environ.get("YTDLP_COOKIES_FILE")
+    if cookies_browser:
+        common_opts["cookiesfrombrowser"] = (cookies_browser,)
+    elif cookies_file and os.path.isfile(cookies_file):
+        common_opts["cookiefile"] = cookies_file
 
     if fmt == "mp3":
         ydl_opts = {
@@ -44,8 +79,15 @@ def download_track(query: str, fmt: AudioFormat) -> tuple[str, str]:
             "merge_output_format": "mp4",
         }
 
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        ydl.download([query])
+    for attempt in range(1, MAX_NETWORK_RETRIES + 1):
+        try:
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                ydl.download([query])
+            break
+        except Exception as e:
+            if attempt == MAX_NETWORK_RETRIES or not _is_network_error(e):
+                raise
+            time.sleep(min(RETRY_BASE_DELAY * 2 ** (attempt - 1), 60))
 
     files = list(Path(tmpdir).iterdir())
     if not files:
